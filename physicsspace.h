@@ -30,6 +30,7 @@ public:
     bool object_wall_collision(double position, double radius);
     double correct_overshoot(SphereObject* physicsObject, double largePosition);
     double settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition);
+    void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
 
 private:
     unsigned int mNumberOfObjects{10};

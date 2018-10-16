@@ -117,6 +117,8 @@ void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
         double xPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_x_value())};
         physicsObject->get_position().set_x_value(xPosition);
         }
+        Vector3d xBounce{Vector3d(-1,1,1)};
+        fix_velocity_for_bounce(xBounce, physicsObject);
     }
     if(object_wall_collision(physicsObject->get_position().get_y_value(),physicsObject->get_radius()))
     {
@@ -130,6 +132,8 @@ void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
         double yPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_y_value())};
         physicsObject->get_position().set_y_value(yPosition);
         }
+        Vector3d yBounce{Vector3d(1,-1,1)};
+        fix_velocity_for_bounce(yBounce, physicsObject);
     }
     if(object_wall_collision(physicsObject->get_position().get_z_value(),physicsObject->get_radius()))
     {
@@ -143,6 +147,8 @@ void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
         double zPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_z_value())};
         physicsObject->get_position().set_z_value(zPosition);
         }
+        Vector3d zBounce{Vector3d(1,1,-1)};
+        fix_velocity_for_bounce(zBounce, physicsObject);
     }
 }
 
@@ -173,6 +179,15 @@ double PhysicsSpace::settle_object_at_low_velocities(SphereObject* physicsObject
     double signPosition{steadyPosition/abs(steadyPosition)};
     double settlePosition = signPosition*(mBoxDimension-physicsObject->get_radius());
     return settlePosition;
+}
+
+void PhysicsSpace::fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject)
+{
+    double Cr{physicsObject->get_Cr()};
+    Vector3d oldVelocity{physicsObject->get_velocity()};
+    Vector3d bounceVelocity{bounce*oldVelocity};
+    Vector3d newVelocity{bounceVelocity*Cr};
+    physicsObject->set_velocity(newVelocity);
 }
 
 void PhysicsSpace::create_physics_objects()
