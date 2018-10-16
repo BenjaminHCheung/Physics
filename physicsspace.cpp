@@ -190,6 +190,11 @@ void PhysicsSpace::fix_velocity_for_bounce(Vector3d bounce, SphereObject* physic
     physicsObject->set_velocity(newVelocity);
 }
 
+std::vector<SphereObject*>* PhysicsSpace::get_object_list()
+{
+    return &mObjectList;
+}
+
 void PhysicsSpace::create_physics_objects()
 {
     for(unsigned int incrementor = 0; incrementor < mNumberOfObjects; incrementor++)

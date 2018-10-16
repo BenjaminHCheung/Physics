@@ -31,6 +31,7 @@ public:
     double correct_overshoot(SphereObject* physicsObject, double largePosition);
     double settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition);
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
+    std::vector<SphereObject*>* get_object_list();
 
 private:
     unsigned int mNumberOfObjects{10};
