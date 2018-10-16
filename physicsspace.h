@@ -32,6 +32,7 @@ public:
     double settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition);
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
     std::vector<SphereObject*>* get_object_list();
+    double get_object_radius(SphereObject* physicsObject);
 
 private:
     unsigned int mNumberOfObjects{10};

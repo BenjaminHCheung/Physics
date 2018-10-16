@@ -195,6 +195,11 @@ std::vector<SphereObject*>* PhysicsSpace::get_object_list()
     return &mObjectList;
 }
 
+double PhysicsSpace::get_object_radius(SphereObject* physicsObject)
+{
+    return physicsObject->get_radius();
+}
+
 void PhysicsSpace::create_physics_objects()
 {
     for(unsigned int incrementor = 0; incrementor < mNumberOfObjects; incrementor++)
