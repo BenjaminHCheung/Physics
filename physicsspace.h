@@ -33,6 +33,7 @@ public:
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
     std::vector<SphereObject*> get_object_list();
     unsigned int get_objectlist_size();
+    void create_physics_objects();
 
 private:
     unsigned int mNumberOfObjects{10};
@@ -48,7 +49,6 @@ private:
     Vector3d mGravity{Vector3d(0,0,-9.8)};
     std::vector<SphereObject*> mObjectList;
 
-    void create_physics_objects();
     Vector3d generate_random_position();
     Vector3d generate_random_velocity();
     double* generate_random_color();
