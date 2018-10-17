@@ -1,6 +1,7 @@
 #include "physicsspace.h"
 
 #include <random>
+#include <iostream>
 
 PhysicsSpace::PhysicsSpace(){}
 
@@ -53,7 +54,7 @@ void PhysicsSpace::update_after_change()
 
 void PhysicsSpace::timestep_object_list()
 {
-    for(unsigned int incrementor = 0; incrementor < mNumberOfObjects; incrementor++)
+    for(unsigned int incrementor{0} ; incrementor < mNumberOfObjects; incrementor++)
     {
         update_object(mObjectList[incrementor]);
     }
@@ -63,6 +64,7 @@ void PhysicsSpace::update_object(SphereObject* physicsObject)
 {
     object_acceleration_update(physicsObject);
     object_velocity_update(physicsObject);
+    //std::cout << physicsObject->get_velocity().get_z_value()<<std::endl;
     object_Position_update(physicsObject);
     check_for_collision(physicsObject);
 }
@@ -70,7 +72,7 @@ void PhysicsSpace::update_object(SphereObject* physicsObject)
 void PhysicsSpace::object_acceleration_update(SphereObject* physicsObject)
 {
     Vector3d objectDrag{object_drag(physicsObject)};
-    Vector3d newAcceleration = mGravity+objectDrag;
+    Vector3d newAcceleration = mGravity + objectDrag;
     physicsObject->set_acceleration(newAcceleration);
 }
 
@@ -78,12 +80,18 @@ Vector3d PhysicsSpace::object_drag(SphereObject* physicsObject)
 {
     Vector3d velocity{physicsObject->get_velocity()};
     Vector3d velocitySquared{velocity*velocity};
+    Vector3d signOfVelocity{Vector3d(velocity.get_x_value()/abs(velocity.get_x_value()),
+                                     velocity.get_y_value()/abs(velocity.get_y_value()),
+                                     velocity.get_z_value()/abs(velocity.get_z_value()))};
+    Vector3d reverseDirection{signOfVelocity*(-1)};
     double Cd{physicsObject->get_coefficent_of_drag()};
     double area{physicsObject->get_area()};
     double coefficent{Cd*mFluidDensity*area};
-    Vector3d dragForce{velocitySquared*coefficent};
+    Vector3d dragDirection{velocitySquared*reverseDirection};
+    Vector3d dragForce{dragDirection*coefficent};
     double mass{physicsObject->get_mass()};
     Vector3d drag{dragForce/mass};
+    std::cout<<drag.get_z_value()<<std::endl;
     return drag;
 }
 void PhysicsSpace::object_velocity_update(SphereObject* physicsObject)
@@ -98,13 +106,14 @@ void PhysicsSpace::object_Position_update(SphereObject* physicsObject)
 {
     Vector3d velocity{physicsObject->get_velocity()};
     Vector3d additionPosition{velocity*mTimeStep};
-    Vector3d newPosition{physicsObject->get_position()+additionPosition};
+    Vector3d currentPosition{physicsObject->get_position()};
+    Vector3d newPosition{currentPosition+additionPosition};
     physicsObject->set_position(newPosition);
 }
 
 void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
 {
-    const double minimumVelocity{.1};
+    const double minimumVelocity{.01};
     if(object_wall_collision(physicsObject->get_position().get_x_value(),physicsObject->get_radius()))
     {
         if(abs(physicsObject->get_position().get_x_value()) > minimumVelocity)
@@ -210,8 +219,7 @@ void PhysicsSpace::create_physics_objects()
         double mass{generate_random_double(mMassMin,mMassMax)};
         double* color{generate_random_color()};
         double radius{generate_random_double(mRadiusMin,mRadiusMax)};
-
-        SphereObject* newObject = new SphereObject(position, velocity, mGravity, Cr, mass, color[0], color[1], color[2], radius);
+        SphereObject* newObject{new SphereObject(position, velocity, mGravity, Cr, mass, color[0], color[1], color[2], radius)};
         mObjectList.push_back(newObject);
     }
 }
@@ -254,17 +262,17 @@ double* PhysicsSpace::generate_random_color()
 
 void PhysicsSpace::clear_object_list()
 {
-    for(unsigned int incrementor = (mNumberOfObjects); incrementor > 0; incrementor--)
+    for(unsigned int incrementor{mNumberOfObjects}; incrementor > 0; --incrementor)
     {
-        delete mObjectList[incrementor-1];
+        delete mObjectList[incrementor];
         mObjectList.pop_back();
     }
 }
 
 double PhysicsSpace::generate_random_double(double minValue, double maxValue)
 {
-    std::uniform_real_distribution<double> unif(minValue,maxValue);
-    std::default_random_engine randomGenerator;
-    double randNumber{unif(randomGenerator)};
-    return randNumber;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(minValue,maxValue);
+    return dis(gen);
 }
