@@ -10,6 +10,7 @@ PhysicsObject::PhysicsObject(Vector3d inputPosition,
                              double inputBlue)
 {
     mPosition = inputPosition;
+    mOldPosition = inputPosition;
     mVelocity = inputVelocity;
     mAcceleration = inputAcceleration;
     mCr = inputCr;
@@ -20,6 +21,7 @@ PhysicsObject::PhysicsObject(Vector3d inputPosition,
 }
 void PhysicsObject::set_position(Vector3d newPosition)
 {
+    mOldPosition = mPosition;
     mPosition = newPosition;
 }
 

@@ -3,6 +3,7 @@
 
 #include "vector3d.h"
 #include "sphereobject.h"
+
 #include <vector>
 
 class PhysicsSpace
@@ -28,7 +29,7 @@ public:
     void object_Position_update(SphereObject* physicsObject);
     void check_for_collision(SphereObject* physicsObject);
     bool object_wall_collision(double position, double radius);
-    double correct_overshoot(SphereObject* physicsObject, double largePosition);
+    double correct_overshoot(double radius, double oustidePosition);
     double settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition);
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
     std::vector<SphereObject*> get_object_list();
@@ -37,16 +38,19 @@ public:
 
 private:
     unsigned int mNumberOfObjects{10};
-    double mTimeStep{1/30};
+    unsigned int mOldNumberOfObjects{10};
+    unsigned int mNumberOfIterations{1};
+    double mTimeStep{1.0/30.0};
     double mRadiusMin{0.2};
     double mRadiusMax{1.0};
+    double mRadiusSafetyMargin{.01};
     double mMassMin{2.0};
     double mMassMax{10.0};
-    double mCrMin{0.2};
+    double mCrMin{0.7};
     double mCrMax{1.0};
     double mBoxDimension{5.0};
     double mFluidDensity{1.275};
-    Vector3d mGravity{Vector3d(0,0,-9.8)};
+    Vector3d mGravity{Vector3d(0.0,0.0,-10.0)};
     std::vector<SphereObject*> mObjectList;
 
     Vector3d generate_random_position();

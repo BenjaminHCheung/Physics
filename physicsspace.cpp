@@ -1,6 +1,8 @@
 #include "physicsspace.h"
 
 #include <random>
+#include <cmath>
+
 #include <iostream>
 
 PhysicsSpace::PhysicsSpace(){}
@@ -11,40 +13,32 @@ PhysicsSpace::~PhysicsSpace()
 }
 void PhysicsSpace::set_number_of_objects(unsigned int newNumber)
 {
-    clear_object_list();
+    mOldNumberOfObjects = mNumberOfObjects;
     mNumberOfObjects = newNumber;
-    mObjectList.resize(mNumberOfObjects);
-    create_physics_objects();
 }
 void PhysicsSpace::set_max_radius(double maxRadius)
 {
     mRadiusMax = maxRadius;
-    update_after_change();
 }
 void PhysicsSpace::set_min_radius(double minRadius)
 {
     mRadiusMin = minRadius;
-    update_after_change();
 }
 void PhysicsSpace::set_max_mass(double maxMass)
 {
     mMassMax = maxMass;
-    update_after_change();
 }
 void PhysicsSpace::set_min_mass(double minMass)
 {
     mMassMin = minMass;
-    update_after_change();
 }
 void PhysicsSpace::set_max_Cr(double maxCr)
 {
     mCrMax = maxCr;
-    update_after_change();
 }
 void PhysicsSpace::set_min_Cr(double minCr)
 {
     mCrMin = minCr;
-    update_after_change();
 }
 void PhysicsSpace::update_after_change()
 {
@@ -53,10 +47,19 @@ void PhysicsSpace::update_after_change()
 }
 
 void PhysicsSpace::timestep_object_list()
-{
+{;
     for(unsigned int incrementor{0} ; incrementor < mNumberOfObjects; incrementor++)
     {
-        update_object(mObjectList[incrementor]);
+        for(unsigned int Iteration{0}; Iteration < mNumberOfIterations; Iteration++)
+        {
+            update_object(mObjectList[incrementor]);
+            if(incrementor == 1)
+            {
+                std::cout<<"Radius: " << mObjectList[incrementor]->get_radius()<<std::endl;
+                std::cout<<"Position: " << mObjectList[incrementor]->get_position().get_x_value()<<std::endl;
+                std::cout<<"velocity: " << mObjectList[incrementor]->get_velocity().get_x_value()<<std::endl;
+            }
+        }
     }
 }
 
@@ -64,15 +67,14 @@ void PhysicsSpace::update_object(SphereObject* physicsObject)
 {
     object_acceleration_update(physicsObject);
     object_velocity_update(physicsObject);
-    //std::cout << physicsObject->get_velocity().get_z_value()<<std::endl;
-    object_Position_update(physicsObject);
     check_for_collision(physicsObject);
+    object_Position_update(physicsObject);
 }
 
 void PhysicsSpace::object_acceleration_update(SphereObject* physicsObject)
 {
-    Vector3d objectDrag{object_drag(physicsObject)};
-    Vector3d newAcceleration = mGravity + objectDrag;
+    //Vector3d objectDrag{object_drag(physicsObject)};
+    Vector3d newAcceleration = mGravity; //+ objectDrag;
     physicsObject->set_acceleration(newAcceleration);
 }
 
@@ -91,7 +93,6 @@ Vector3d PhysicsSpace::object_drag(SphereObject* physicsObject)
     Vector3d dragForce{dragDirection*coefficent};
     double mass{physicsObject->get_mass()};
     Vector3d drag{dragForce/mass};
-    std::cout<<drag.get_z_value()<<std::endl;
     return drag;
 }
 void PhysicsSpace::object_velocity_update(SphereObject* physicsObject)
@@ -113,73 +114,40 @@ void PhysicsSpace::object_Position_update(SphereObject* physicsObject)
 
 void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
 {
-    const double minimumVelocity{.01};
     if(object_wall_collision(physicsObject->get_position().get_x_value(),physicsObject->get_radius()))
     {
-        if(abs(physicsObject->get_position().get_x_value()) > minimumVelocity)
-        {
-        double xPosition{correct_overshoot(physicsObject,physicsObject->get_position().get_x_value())};
+        double xPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_x_value())};
         physicsObject->get_position().set_x_value(xPosition);
-        }
-        else
-        {
-        double xPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_x_value())};
-        physicsObject->get_position().set_x_value(xPosition);
-        }
-        Vector3d xBounce{Vector3d(-1,1,1)};
+        Vector3d xBounce{Vector3d(-physicsObject->get_Cr(),1.0,1.0)};
         fix_velocity_for_bounce(xBounce, physicsObject);
     }
     if(object_wall_collision(physicsObject->get_position().get_y_value(),physicsObject->get_radius()))
     {
-        if(abs(physicsObject->get_position().get_y_value()) > minimumVelocity)
-        {
-        double yPosition{correct_overshoot(physicsObject,physicsObject->get_position().get_y_value())};
+        double yPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_y_value())};
         physicsObject->get_position().set_y_value(yPosition);
-        }
-        else
-        {
-        double yPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_y_value())};
-        physicsObject->get_position().set_y_value(yPosition);
-        }
-        Vector3d yBounce{Vector3d(1,-1,1)};
+        Vector3d yBounce{Vector3d(1.0,-physicsObject->get_Cr(),1.0)};
         fix_velocity_for_bounce(yBounce, physicsObject);
     }
     if(object_wall_collision(physicsObject->get_position().get_z_value(),physicsObject->get_radius()))
     {
-        if(abs(physicsObject->get_position().get_z_value()) > minimumVelocity)
-        {
-        double zPosition{correct_overshoot(physicsObject,physicsObject->get_position().get_z_value())};
+        double zPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_z_value())};
         physicsObject->get_position().set_z_value(zPosition);
-        }
-        else
-        {
-        double zPosition{settle_object_at_low_velocities(physicsObject,physicsObject->get_position().get_z_value())};
-        physicsObject->get_position().set_z_value(zPosition);
-        }
-        Vector3d zBounce{Vector3d(1,1,-1)};
+        Vector3d zBounce{Vector3d(1.0,1.0,-physicsObject->get_Cr())};
         fix_velocity_for_bounce(zBounce, physicsObject);
     }
 }
 
 bool PhysicsSpace::object_wall_collision(double position, double radius)
 {
-    if(position > (mBoxDimension - radius))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (abs(position)+radius) > mBoxDimension;
 }
 
-double PhysicsSpace::correct_overshoot(SphereObject* physicsObject, double outsidePosition)
+double PhysicsSpace::correct_overshoot(double radius, double outsidePosition)
 {
-    double farthestPosition = (mBoxDimension - physicsObject->get_radius());
-    double overshoot{abs(outsidePosition) - farthestPosition};
-    double trueSign{outsidePosition/abs(outsidePosition)};
-    double oppositeSign{(-1)*outsidePosition/abs(outsidePosition)*physicsObject->get_Cr()};
-    double newPosition{oppositeSign*overshoot + trueSign*farthestPosition};
+    double farthestPosition{mBoxDimension - radius - mRadiusSafetyMargin};
+    double oversthoot{abs(outsidePosition) - farthestPosition};
+    double sign{std::copysign(1.0, outsidePosition)};
+    double newPosition{sign*(farthestPosition - oversthoot)};
     return newPosition;
 }
 
@@ -192,11 +160,9 @@ double PhysicsSpace::settle_object_at_low_velocities(SphereObject* physicsObject
 
 void PhysicsSpace::fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject)
 {
-    double Cr{physicsObject->get_Cr()};
     Vector3d oldVelocity{physicsObject->get_velocity()};
     Vector3d bounceVelocity{bounce*oldVelocity};
-    Vector3d newVelocity{bounceVelocity*Cr};
-    physicsObject->set_velocity(newVelocity);
+    physicsObject->set_velocity(bounceVelocity);
 }
 
 std::vector<SphereObject*> PhysicsSpace::get_object_list()
@@ -262,7 +228,7 @@ double* PhysicsSpace::generate_random_color()
 
 void PhysicsSpace::clear_object_list()
 {
-    for(unsigned int incrementor{mNumberOfObjects}; incrementor > 0; --incrementor)
+    for(unsigned int incrementor{mOldNumberOfObjects}; incrementor > 0; --incrementor)
     {
         delete mObjectList[incrementor];
         mObjectList.pop_back();

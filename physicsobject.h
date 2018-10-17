@@ -29,9 +29,10 @@ public:
     double* get_color();
 
 private:
-    Vector3d mPosition;
-    Vector3d mVelocity;
-    Vector3d mAcceleration;
+    Vector3d mPosition{Vector3d(0,0,0)};
+    Vector3d mOldPosition{Vector3d(0,0,0)};
+    Vector3d mVelocity{Vector3d(0,0,0)};
+    Vector3d mAcceleration{Vector3d(0,0,-9.8)};
     double mMass;
     double mCr;
     double mColor[3];
