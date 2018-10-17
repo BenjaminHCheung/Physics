@@ -6,7 +6,7 @@ PhysicsSpace::PhysicsSpace(){}
 
 PhysicsSpace::~PhysicsSpace()
 {
-
+    clear_object_list();
 }
 void PhysicsSpace::set_number_of_objects(unsigned int newNumber)
 {
