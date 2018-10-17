@@ -1,12 +1,22 @@
 #include "physicsobject.h"
 
-PhysicsObject::PhysicsObject(Vector3d inputPosition, Vector3d inputVelocity, Vector3d inputAcceleration, double inputCr, double inputMass)
+PhysicsObject::PhysicsObject(Vector3d inputPosition,
+                             Vector3d inputVelocity,
+                             Vector3d inputAcceleration,
+                             double inputCr,
+                             double inputMass,
+                             double inputRed,
+                             double inputGreen,
+                             double inputBlue)
 {
     mPosition = inputPosition;
     mVelocity = inputVelocity;
     mAcceleration = inputAcceleration;
     mCr = inputCr;
     mMass = inputMass;
+    mColor[0] = inputRed;
+    mColor[1] = inputGreen;
+    mColor[2] = inputBlue;
 }
 void PhysicsObject::set_position(Vector3d newPosition)
 {
