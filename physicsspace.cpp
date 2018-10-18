@@ -212,11 +212,15 @@ Vector3d PhysicsSpace::generate_random_position()
 
 Vector3d PhysicsSpace::generate_random_velocity()
 {
-    double max{6.0};
-    double min{-6.0};
-    double xVelocity{generate_random_double(min,max)};
-    double yVelocity{generate_random_double(min,max)};
-    double zVelocity{generate_random_double(min,max)};
+    double minAngle{-180.0};
+    double maxAngle{180.0};
+    const double pi = 3.14159265358979;
+    double magnitudeVelocity{generate_random_double(mVelocityMin,mVelocityMax)};
+    double theta{pi/180.0*generate_random_double(minAngle,maxAngle)};
+    double psi{pi/180.0*generate_random_double(minAngle,maxAngle)};
+    double xVelocity{magnitudeVelocity*cos(theta)*cos(psi)};
+    double yVelocity{magnitudeVelocity*sin(theta)*cos(psi)};
+    double zVelocity{magnitudeVelocity*sin(psi)};
     Vector3d velocity{Vector3d(xVelocity,yVelocity,zVelocity)};
     return velocity;
 }
@@ -237,9 +241,9 @@ double* PhysicsSpace::generate_random_color()
 
 void PhysicsSpace::clear_object_list()
 {
-    for(unsigned int incrementor{mOldNumberOfObjects}; incrementor > 0; --incrementor)
+    for(unsigned int incrementor{mOldNumberOfObjects}; incrementor > 0; incrementor--)
     {
-        delete mObjectList[incrementor];
+        delete mObjectList[(incrementor - 1)];
         mObjectList.pop_back();
     }
 }
