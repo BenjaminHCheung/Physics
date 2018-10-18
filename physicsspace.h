@@ -13,12 +13,16 @@ public:
     ~PhysicsSpace();
 
     void set_number_of_objects(unsigned int newNumber);
+    void set_gravity(double xValue, double yValue, double zValue);
+    void set_fluid_density(double density);
     void set_max_radius(double maxRadius);
     void set_min_radius(double minRadius);
     void set_max_mass(double maxMass);
     void set_min_mass(double minMass);
     void set_max_Cr(double maxCr);
     void set_min_Cr(double minCr);
+    void set_velocity_max(double maxVelocity);
+    void set_velocity_min(double minVelocity);
     void update_after_change();
 
     void timestep_object_list();
@@ -50,6 +54,8 @@ private:
     double mCrMax{1.0};
     double mBoxDimension{5.0};
     double mFluidDensity{1.275};
+    double mVelocityMin{0.0};
+    double mVelocityMax{6.0};
     Vector3d mGravity{Vector3d(0.0,0.0,-10.0)};
     std::vector<SphereObject*> mObjectList;
 

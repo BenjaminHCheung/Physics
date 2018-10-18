@@ -3,8 +3,6 @@
 #include <random>
 #include <cmath>
 
-#include <iostream>
-
 PhysicsSpace::PhysicsSpace(){}
 
 PhysicsSpace::~PhysicsSpace()
@@ -15,6 +13,15 @@ void PhysicsSpace::set_number_of_objects(unsigned int newNumber)
 {
     mOldNumberOfObjects = mNumberOfObjects;
     mNumberOfObjects = newNumber;
+}
+void PhysicsSpace::set_gravity(double xValue, double yValue, double zValue)
+{
+    Vector3d newGravity{Vector3d(xValue, yValue, zValue)};
+    mGravity = newGravity;
+}
+void PhysicsSpace::set_fluid_density(double density)
+{
+    mFluidDensity = density;
 }
 void PhysicsSpace::set_max_radius(double maxRadius)
 {
@@ -40,6 +47,14 @@ void PhysicsSpace::set_min_Cr(double minCr)
 {
     mCrMin = minCr;
 }
+void PhysicsSpace::set_velocity_max(double maxVelocity)
+{
+    mVelocityMax = maxVelocity;
+}
+void PhysicsSpace::set_velocity_min(double minVelocity)
+{
+    mVelocityMin = minVelocity;
+}
 void PhysicsSpace::update_after_change()
 {
     clear_object_list();
@@ -53,12 +68,6 @@ void PhysicsSpace::timestep_object_list()
         for(unsigned int Iteration{0}; Iteration < mNumberOfIterations; Iteration++)
         {
             update_object(mObjectList[incrementor]);
-            if(incrementor == 1)
-            {
-                std::cout<<"Radius: " << mObjectList[incrementor]->get_radius()<<std::endl;
-                std::cout<<"Position: " << mObjectList[incrementor]->get_position().get_x_value()<<std::endl;
-                std::cout<<"velocity: " << mObjectList[incrementor]->get_velocity().get_x_value()<<std::endl;
-            }
         }
     }
 }
@@ -73,8 +82,8 @@ void PhysicsSpace::update_object(SphereObject* physicsObject)
 
 void PhysicsSpace::object_acceleration_update(SphereObject* physicsObject)
 {
-    //Vector3d objectDrag{object_drag(physicsObject)};
-    Vector3d newAcceleration = mGravity; //+ objectDrag;
+    Vector3d objectDrag{object_drag(physicsObject)};
+    Vector3d newAcceleration = mGravity + objectDrag;
     physicsObject->set_acceleration(newAcceleration);
 }
 
