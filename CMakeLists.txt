@@ -26,7 +26,7 @@ set(TEST_NAME ${PROJECT_NAME}_UnitTest)
 
 add_executable(${TEST_NAME}
     vector_unittest.cpp
-    #objectphysics_unittest.cpp
+    physicsspace_unittest.cpp
         )
 
 target_link_libraries(${TEST_NAME} gtest gtest_main ${PROJECT_NAME})

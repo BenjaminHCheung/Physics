@@ -199,6 +199,47 @@ void PhysicsSpace::create_physics_objects()
     }
 }
 
+
+void PhysicsSpace::two_object_collision(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition)
+{
+    Vector3d newVelocityFirstObject{calculate_new_velocity(firstObject,secondObject,magnitudeOfPosition)};
+    Vector3d newVelocitySecondObject{calculate_new_velocity(secondObject,firstObject,magnitudeOfPosition)};
+
+    firstObject->set_velocity(newVelocityFirstObject);
+    secondObject->set_velocity(newVelocitySecondObject);
+}
+
+
+double PhysicsSpace::calculate_magnitude_of_position_vectors(PhysicsObject* firstObject, PhysicsObject* secondObject)
+{
+    double xValue{pow(firstObject->get_position().get_x_value()-secondObject->get_position().get_x_value(),2)};
+    double yValue{pow(firstObject->get_position().get_y_value()-secondObject->get_position().get_y_value(),2)};
+    double zValue{pow(firstObject->get_position().get_z_value()-secondObject->get_position().get_z_value(),2)};
+
+    return sqrt(xValue + yValue + zValue);
+}
+
+Vector3d PhysicsSpace::calculate_new_velocity(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition)
+{
+    Vector3d firstObjectCurrentVelocity{firstObject->get_velocity()};
+    Vector3d secondObjectCurrentVelocity{secondObject->get_velocity()};
+
+    Vector3d firstObjectCurrentPosition{firstObject->get_position()};
+    Vector3d secondObjectCurrentPosition{firstObject->get_position()};
+
+    Vector3d relativeVelocity{firstObjectCurrentVelocity - secondObjectCurrentVelocity};
+    Vector3d relativePosition{firstObjectCurrentPosition - secondObjectCurrentPosition};
+
+    Vector3d velocityDotPosition{relativeVelocity * relativePosition};
+    Vector3d dotProductOverMagnitudeSquared{velocityDotPosition/(pow(magnitudeOfPosition,2))};
+    Vector3d dotOverMagTimesPositionVector{relativePosition * dotProductOverMagnitudeSquared};
+    double massScaler{(2*firstObject->get_mass()/(firstObject->get_mass()+secondObject->get_mass()))};
+
+    Vector3d collisionAffectVelocity{dotOverMagTimesPositionVector * massScaler};
+    Vector3d newVelocityVector{firstObjectCurrentVelocity - collisionAffectVelocity};
+    return (newVelocityVector * firstObject->get_Cr());
+}
+
 Vector3d PhysicsSpace::generate_random_position()
 {
     double max{4.0};

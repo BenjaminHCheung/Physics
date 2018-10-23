@@ -40,6 +40,11 @@ public:
     unsigned int get_objectlist_size();
     void create_physics_objects();
 
+
+    void two_object_collision(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition);
+    double calculate_magnitude_of_position_vectors(PhysicsObject* firstObject, PhysicsObject* secondObject);
+    Vector3d calculate_new_velocity(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition);
+
 private:
     unsigned int mNumberOfObjects{10};
     unsigned int mOldNumberOfObjects{10};
@@ -65,7 +70,6 @@ private:
     void clear_object_list();
 
     double generate_random_double(double minValue, double maxValue);
-
 };
 
 #endif // PHYSICSSPACE_H
