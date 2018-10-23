@@ -40,10 +40,10 @@ public:
     unsigned int get_objectlist_size();
     void create_physics_objects();
 
-
-    void two_object_collision(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition);
-    double calculate_magnitude_of_position_vectors(PhysicsObject* firstObject, PhysicsObject* secondObject);
-    Vector3d calculate_new_velocity(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition);
+    bool checkObjectCollisions(SphereObject* firstObject, SphereObject* secondObject);
+    void two_object_collision(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition);
+    double calculate_magnitude_of_position_vectors(SphereObject* firstObject, SphereObject* secondObject);
+    Vector3d calculate_new_velocity(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition);
 
 private:
     unsigned int mNumberOfObjects{10};

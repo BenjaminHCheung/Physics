@@ -200,7 +200,9 @@ void PhysicsSpace::create_physics_objects()
 }
 
 
-void PhysicsSpace::two_object_collision(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition)
+bool checkObjectCollisions(SphereObject* firstObject, SphereObject* secondObject);
+
+void PhysicsSpace::two_object_collision(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition)
 {
     Vector3d newVelocityFirstObject{calculate_new_velocity(firstObject,secondObject,magnitudeOfPosition)};
     Vector3d newVelocitySecondObject{calculate_new_velocity(secondObject,firstObject,magnitudeOfPosition)};
@@ -210,7 +212,7 @@ void PhysicsSpace::two_object_collision(PhysicsObject* firstObject, PhysicsObjec
 }
 
 
-double PhysicsSpace::calculate_magnitude_of_position_vectors(PhysicsObject* firstObject, PhysicsObject* secondObject)
+double PhysicsSpace::calculate_magnitude_of_position_vectors(SphereObject* firstObject, SphereObject* secondObject)
 {
     double xValue{pow(firstObject->get_position().get_x_value()-secondObject->get_position().get_x_value(),2)};
     double yValue{pow(firstObject->get_position().get_y_value()-secondObject->get_position().get_y_value(),2)};
@@ -219,7 +221,7 @@ double PhysicsSpace::calculate_magnitude_of_position_vectors(PhysicsObject* firs
     return sqrt(xValue + yValue + zValue);
 }
 
-Vector3d PhysicsSpace::calculate_new_velocity(PhysicsObject* firstObject, PhysicsObject* secondObject, double magnitudeOfPosition)
+Vector3d PhysicsSpace::calculate_new_velocity(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition)
 {
     Vector3d firstObjectCurrentVelocity{firstObject->get_velocity()};
     Vector3d secondObjectCurrentVelocity{secondObject->get_velocity()};
