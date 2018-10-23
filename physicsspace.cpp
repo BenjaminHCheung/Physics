@@ -70,6 +70,7 @@ void PhysicsSpace::timestep_object_list()
             update_object(mObjectList[incrementor]);
         }
     }
+    check_object_collisions();
 }
 
 void PhysicsSpace::update_object(SphereObject* physicsObject)
@@ -200,7 +201,28 @@ void PhysicsSpace::create_physics_objects()
 }
 
 
-bool checkObjectCollisions(SphereObject* firstObject, SphereObject* secondObject);
+void PhysicsSpace::check_object_collisions()
+{
+    for(unsigned int firstObject{0}; firstObject < (mNumberOfObjects - 1); firstObject++)
+    {
+        for(unsigned int secondObject{firstObject+1}; secondObject < mNumberOfObjects; secondObject++)
+        {
+            do_objects_collide(mObjectList[firstObject], mObjectList[secondObject]);
+        }
+    }
+}
+
+
+void PhysicsSpace::do_objects_collide(SphereObject* firstObject, SphereObject* secondObject)
+{
+    double combinedRadius{firstObject->get_radius() + secondObject->get_radius()};
+    double positionMagnitude{calculate_magnitude_of_position_vectors(firstObject, secondObject)};
+    if(combinedRadius > positionMagnitude)
+    {
+        two_object_collision(firstObject, secondObject, positionMagnitude);
+        two_object_reposition(firstObject, secondObject, combinedRadius, positionMagnitude);
+    }
+}
 
 void PhysicsSpace::two_object_collision(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition)
 {
@@ -211,6 +233,27 @@ void PhysicsSpace::two_object_collision(SphereObject* firstObject, SphereObject*
     secondObject->set_velocity(newVelocitySecondObject);
 }
 
+void PhysicsSpace::two_object_reposition(SphereObject* firstObject, SphereObject* secondObject, double combinedRadius, double magnitudeOfPosition)
+{
+    double repositionMagnitude{combinedRadius-magnitudeOfPosition};
+    double firstObjectMassScaler{firstObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass())};
+    double secondObjectMassScaler{secondObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass())};
+
+    Vector3d firstObjectPosition{firstObject->get_position()};
+    Vector3d secondObjectPosition{secondObject->get_position()};
+
+    Vector3d relativePosition{firstObjectPosition - secondObjectPosition};
+    Vector3d unitVectorPosition{relativePosition/magnitudeOfPosition};
+
+    Vector3d changeInFirstObjectPosition{unitVectorPosition*repositionMagnitude*firstObjectMassScaler};
+    Vector3d changeInSecondObjectPosition{unitVectorPosition*repositionMagnitude*secondObjectMassScaler};
+
+    Vector3d newFirstObjectPosition{firstObjectPosition + changeInFirstObjectPosition};
+    Vector3d newSecondObjectPosition{secondObjectPosition + changeInSecondObjectPosition};
+
+    firstObject->set_position(newFirstObjectPosition);
+    secondObject->set_position(newSecondObjectPosition);
+}
 
 double PhysicsSpace::calculate_magnitude_of_position_vectors(SphereObject* firstObject, SphereObject* secondObject)
 {
