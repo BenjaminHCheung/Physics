@@ -22,8 +22,8 @@ public:
     double get_coefficent_of_drag();
 
 private:
-    double mRadius;
-    double mArea;
+    double mRadius{0};
+    double mArea{0};
     double mCoefficentOfDrag{.47};
 
     double calculate_area();

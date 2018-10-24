@@ -21,6 +21,7 @@ public:
     Vector3d operator*(Vector3d &rightHandVector);
     Vector3d operator*(double scaler);
     Vector3d operator/(double divider);
+    Vector3d operator/(Vector3d &rightHandVector);
 
 private:
     double mXValue;

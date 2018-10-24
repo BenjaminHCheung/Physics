@@ -1,4 +1,5 @@
 #include "sphereobject.h"
+#include <iostream>
 
 SphereObject::SphereObject(Vector3d inputPosition,
                            Vector3d inputVelocity,

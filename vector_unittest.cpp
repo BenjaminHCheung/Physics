@@ -60,7 +60,7 @@ TEST(GivenScalerValueOfTypeDouble, WhenUsingMultiplicationOperator_ScalesEachVal
 }
 
 
-TEST(GivenDivisionValueOfTypeDouble, WhenUsingDivisionOperatore_DividesEachValueInVectorCorrectly)
+TEST(GivenDivisionValueOfTypeDouble, WhenUsingDivisionOperator_DividesEachValueInVectorCorrectly)
 {
     double divider{9.8};
     Vector3d baseVector{Vector3d(9.8,19.6,9.8)};
