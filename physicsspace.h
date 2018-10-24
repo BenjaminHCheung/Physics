@@ -31,11 +31,13 @@ public:
     Vector3d object_drag(SphereObject* physicsObject);
     void object_velocity_update(SphereObject* physicsObject);
     void object_Position_update(SphereObject* physicsObject);
+
     void check_for_collision(SphereObject* physicsObject);
     bool object_wall_collision(double position, double radius);
     double correct_overshoot(double radius, double oustidePosition);
-    double settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition);
+    bool wrong_direction_velocity(double position, double velocity);
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
+
     std::vector<SphereObject*> get_object_list();
     unsigned int get_objectlist_size();
     void create_physics_objects();
@@ -50,8 +52,8 @@ public:
 private:
     unsigned int mNumberOfObjects{10};
     unsigned int mOldNumberOfObjects{10};
-    unsigned int mNumberOfIterations{1};
-    double mTimeStep{1.0/30.0};
+    unsigned int mNumberOfIterations{3};
+    double mTimeStep{1.0/90.0};
     double mRadiusMin{0.2};
     double mRadiusMax{1.0};
     double mRadiusSafetyMargin{.01};

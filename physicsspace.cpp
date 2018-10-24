@@ -62,7 +62,8 @@ void PhysicsSpace::update_after_change()
 }
 
 void PhysicsSpace::timestep_object_list()
-{;
+{
+    check_object_collisions();
     for(unsigned int incrementor{0} ; incrementor < mNumberOfObjects; incrementor++)
     {
         for(unsigned int Iteration{0}; Iteration < mNumberOfIterations; Iteration++)
@@ -70,7 +71,6 @@ void PhysicsSpace::timestep_object_list()
             update_object(mObjectList[incrementor]);
         }
     }
-    check_object_collisions();
 }
 
 void PhysicsSpace::update_object(SphereObject* physicsObject)
@@ -128,22 +128,34 @@ void PhysicsSpace::check_for_collision(SphereObject* physicsObject)
     {
         double xPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_x_value())};
         physicsObject->get_position().set_x_value(xPosition);
-        Vector3d xBounce{Vector3d(-physicsObject->get_Cr(),1.0,1.0)};
-        fix_velocity_for_bounce(xBounce, physicsObject);
+
+        if(wrong_direction_velocity(physicsObject->get_position().get_x_value(), physicsObject->get_velocity().get_x_value()))
+        {
+            Vector3d xBounce{Vector3d(-physicsObject->get_Cr(),1.0,1.0)};
+            fix_velocity_for_bounce(xBounce, physicsObject);
+        }
     }
     if(object_wall_collision(physicsObject->get_position().get_y_value(),physicsObject->get_radius()))
     {
         double yPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_y_value())};
         physicsObject->get_position().set_y_value(yPosition);
-        Vector3d yBounce{Vector3d(1.0,-physicsObject->get_Cr(),1.0)};
-        fix_velocity_for_bounce(yBounce, physicsObject);
+
+        if(wrong_direction_velocity(physicsObject->get_position().get_y_value(), physicsObject->get_velocity().get_y_value()))
+        {
+            Vector3d yBounce{Vector3d(1.0,-physicsObject->get_Cr(),1.0)};
+            fix_velocity_for_bounce(yBounce, physicsObject);
+        }
     }
     if(object_wall_collision(physicsObject->get_position().get_z_value(),physicsObject->get_radius()))
     {
         double zPosition{correct_overshoot(physicsObject->get_radius(),physicsObject->get_position().get_z_value())};
         physicsObject->get_position().set_z_value(zPosition);
-        Vector3d zBounce{Vector3d(1.0,1.0,-physicsObject->get_Cr())};
-        fix_velocity_for_bounce(zBounce, physicsObject);
+
+        if(wrong_direction_velocity(physicsObject->get_position().get_z_value(), physicsObject->get_velocity().get_z_value()))
+        {
+            Vector3d zBounce{Vector3d(1.0,1.0,-physicsObject->get_Cr())};
+            fix_velocity_for_bounce(zBounce, physicsObject);
+        }
     }
 }
 
@@ -161,11 +173,18 @@ double PhysicsSpace::correct_overshoot(double radius, double outsidePosition)
     return newPosition;
 }
 
-double PhysicsSpace::settle_object_at_low_velocities(SphereObject* physicsObject, double steadyPosition)
+bool PhysicsSpace::wrong_direction_velocity(double position, double velocity)
 {
-    double signPosition{steadyPosition/abs(steadyPosition)};
-    double settlePosition = signPosition*(mBoxDimension-physicsObject->get_radius());
-    return settlePosition;
+    double signPosition{std::copysign(1.0, position)};
+    double signVelocity{std::copysign(1.0, velocity)};
+    if(signPosition == signVelocity)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void PhysicsSpace::fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject)
@@ -200,7 +219,6 @@ void PhysicsSpace::create_physics_objects()
     }
 }
 
-
 void PhysicsSpace::check_object_collisions()
 {
     for(unsigned int firstObject{0}; firstObject < (mNumberOfObjects - 1); firstObject++)
@@ -212,12 +230,11 @@ void PhysicsSpace::check_object_collisions()
     }
 }
 
-
 void PhysicsSpace::do_objects_collide(SphereObject* firstObject, SphereObject* secondObject)
 {
     double combinedRadius{firstObject->get_radius() + secondObject->get_radius()};
     double positionMagnitude{calculate_magnitude_of_position_vectors(firstObject, secondObject)};
-    if(combinedRadius > positionMagnitude)
+    if(combinedRadius >= positionMagnitude)
     {
         two_object_collision(firstObject, secondObject, positionMagnitude);
         two_object_reposition(firstObject, secondObject, combinedRadius, positionMagnitude);
@@ -235,9 +252,10 @@ void PhysicsSpace::two_object_collision(SphereObject* firstObject, SphereObject*
 
 void PhysicsSpace::two_object_reposition(SphereObject* firstObject, SphereObject* secondObject, double combinedRadius, double magnitudeOfPosition)
 {
+    double extraPositionMargin{.1};
     double repositionMagnitude{combinedRadius-magnitudeOfPosition};
-    double firstObjectMassScaler{firstObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass())};
-    double secondObjectMassScaler{secondObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass())};
+    double firstObjectMassScaler{firstObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass()) + extraPositionMargin};
+    double secondObjectMassScaler{secondObject->get_mass()/(firstObject->get_mass() + secondObject->get_mass()) + extraPositionMargin};
 
     Vector3d firstObjectPosition{firstObject->get_position()};
     Vector3d secondObjectPosition{secondObject->get_position()};
@@ -249,7 +267,7 @@ void PhysicsSpace::two_object_reposition(SphereObject* firstObject, SphereObject
     Vector3d changeInSecondObjectPosition{unitVectorPosition*repositionMagnitude*secondObjectMassScaler};
 
     Vector3d newFirstObjectPosition{firstObjectPosition + changeInFirstObjectPosition};
-    Vector3d newSecondObjectPosition{secondObjectPosition + changeInSecondObjectPosition};
+    Vector3d newSecondObjectPosition{secondObjectPosition - changeInSecondObjectPosition};
 
     firstObject->set_position(newFirstObjectPosition);
     secondObject->set_position(newSecondObjectPosition);
@@ -270,7 +288,7 @@ Vector3d PhysicsSpace::calculate_new_velocity(SphereObject* firstObject, SphereO
     Vector3d secondObjectCurrentVelocity{secondObject->get_velocity()};
 
     Vector3d firstObjectCurrentPosition{firstObject->get_position()};
-    Vector3d secondObjectCurrentPosition{firstObject->get_position()};
+    Vector3d secondObjectCurrentPosition{secondObject->get_position()};
 
     Vector3d relativeVelocity{firstObjectCurrentVelocity - secondObjectCurrentVelocity};
     Vector3d relativePosition{firstObjectCurrentPosition - secondObjectCurrentPosition};
@@ -280,9 +298,9 @@ Vector3d PhysicsSpace::calculate_new_velocity(SphereObject* firstObject, SphereO
     Vector3d dotOverMagTimesPositionVector{relativePosition * dotProductOverMagnitudeSquared};
     double massScaler{(2*firstObject->get_mass()/(firstObject->get_mass()+secondObject->get_mass()))};
 
-    Vector3d collisionAffectVelocity{dotOverMagTimesPositionVector * massScaler};
+    Vector3d collisionAffectVelocity{dotOverMagTimesPositionVector * massScaler * firstObject->get_Cr()};
     Vector3d newVelocityVector{firstObjectCurrentVelocity - collisionAffectVelocity};
-    return (newVelocityVector * firstObject->get_Cr());
+    return newVelocityVector;
 }
 
 Vector3d PhysicsSpace::generate_random_position()
