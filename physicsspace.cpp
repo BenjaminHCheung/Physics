@@ -194,31 +194,6 @@ void PhysicsSpace::fix_velocity_for_bounce(Vector3d bounce, SphereObject* physic
     physicsObject->set_velocity(bounceVelocity);
 }
 
-std::vector<SphereObject*> PhysicsSpace::get_object_list()
-{
-    return mObjectList;
-}
-
-unsigned int PhysicsSpace::get_objectlist_size()
-{
-    return mNumberOfObjects;
-}
-
-void PhysicsSpace::create_physics_objects()
-{
-    for(unsigned int incrementor = 0; incrementor < mNumberOfObjects; incrementor++)
-    {
-        Vector3d position{generate_random_position()};
-        Vector3d velocity{generate_random_velocity()};
-        double Cr{generate_random_double(mCrMin,mCrMax)};
-        double mass{generate_random_double(mMassMin,mMassMax)};
-        double* color{generate_random_color()};
-        double radius{generate_random_double(mRadiusMin,mRadiusMax)};
-        SphereObject* newObject{new SphereObject(position, velocity, mGravity, Cr, mass, color[0], color[1], color[2], radius)};
-        mObjectList.push_back(newObject);
-    }
-}
-
 void PhysicsSpace::check_object_collisions()
 {
     for(unsigned int firstObject{0}; firstObject < (mNumberOfObjects - 1); firstObject++)
@@ -302,6 +277,32 @@ Vector3d PhysicsSpace::calculate_new_velocity(SphereObject* firstObject, SphereO
     Vector3d newVelocityVector{firstObjectCurrentVelocity - collisionAffectVelocity};
     return newVelocityVector;
 }
+
+std::vector<SphereObject*> PhysicsSpace::get_object_list()
+{
+    return mObjectList;
+}
+
+unsigned int PhysicsSpace::get_objectlist_size()
+{
+    return mNumberOfObjects;
+}
+
+void PhysicsSpace::create_physics_objects()
+{
+    for(unsigned int incrementor = 0; incrementor < mNumberOfObjects; incrementor++)
+    {
+        Vector3d position{generate_random_position()};
+        Vector3d velocity{generate_random_velocity()};
+        double Cr{generate_random_double(mCrMin,mCrMax)};
+        double mass{generate_random_double(mMassMin,mMassMax)};
+        double* color{generate_random_color()};
+        double radius{generate_random_double(mRadiusMin,mRadiusMax)};
+        SphereObject* newObject{new SphereObject(position, velocity, mGravity, Cr, mass, color[0], color[1], color[2], radius)};
+        mObjectList.push_back(newObject);
+    }
+}
+
 
 Vector3d PhysicsSpace::generate_random_position()
 {

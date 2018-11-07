@@ -38,16 +38,16 @@ public:
     bool wrong_direction_velocity(double position, double velocity);
     void fix_velocity_for_bounce(Vector3d bounce, SphereObject* physicsObject);
 
-    std::vector<SphereObject*> get_object_list();
-    unsigned int get_objectlist_size();
-    void create_physics_objects();
-
     void check_object_collisions();
     void do_objects_collide(SphereObject* firstObject, SphereObject* secondObject);
     void two_object_collision(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition);
     void two_object_reposition(SphereObject* firstObject, SphereObject* secondObject, double combinedRadius, double magnitudeOfPosition);
     double calculate_magnitude_of_position_vectors(SphereObject* firstObject, SphereObject* secondObject);
     Vector3d calculate_new_velocity(SphereObject* firstObject, SphereObject* secondObject, double magnitudeOfPosition);
+
+    std::vector<SphereObject*> get_object_list();
+    unsigned int get_objectlist_size();
+    void create_physics_objects();
 
 private:
     unsigned int mNumberOfObjects{10};
